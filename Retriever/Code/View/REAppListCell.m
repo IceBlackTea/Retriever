@@ -32,6 +32,21 @@
     self.textLabel.text = [REHelper displayNameForApplication:app];
 }
 
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    CGRect rectIcon = (CGRect){
+        .origin.x = 0,
+        .origin.y = 0,
+        .size.width = CGRectGetWidth(self.imageView.frame) + 2 * CGRectGetMinX(self.imageView.frame),
+        .size.height = CGRectGetHeight(self.imageView.frame) + 2 * CGRectGetMinY(self.imageView.frame)
+    };
+    
+    if (CGRectContainsPoint(rectIcon, point)) {
+        return self.imageView;
+    }
+    
+    return [super hitTest:point withEvent:event];
+}
+
 - (void)addIconGestureTarget:(id)target selector:(SEL)sel {
     if (target && sel && !_bIsTapGestureAdded) {
         _target = target;

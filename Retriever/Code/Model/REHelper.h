@@ -30,6 +30,6 @@
 
 + (void)shareRetriever;
 
-+ (NSDictionary *)dictForAppProxy:(id)app;
++ (NSDictionary *)dictForObject:(id)obj;
 
 @end

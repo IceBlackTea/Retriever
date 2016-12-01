@@ -70,10 +70,32 @@ static NSString *const kRERetrieverGitHubURL = @"https://github.com/cyanzhong/Re
                                                                                    completion:nil];
 }
 
-+ (NSDictionary *)dictForAppProxy:(id)app {
++ (NSDictionary *)dictForObject:(id)obj {
+    return [[self class] getDictForObj:obj class:[obj class]];
+}
+
++ (id)getDictForObj:(id)obj class:(Class)cls {
+    
+    Class supCls = class_getSuperclass(cls);
+    if (!supCls) {
+        return NSStringFromClass(cls);
+//        return [[self class] dictForObj:app class:cls];
+    }
+    
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    
+    [dict setObject:[[self class] getDictForObj:obj class:supCls]
+             forKey:[NSString stringWithFormat:@"Super - <%@>", NSStringFromClass(supCls)]];
+    
+    [dict addEntriesFromDictionary:[[self class] dictForObj:obj class:cls]];
+    
+    return [dict copy];
+}
+
++ (NSMutableDictionary *)dictForObj:(id)app class:(Class)cls {
     NSMutableDictionary *dict = [NSMutableDictionary new];
     unsigned int count;
-    objc_property_t *properties = class_copyPropertyList([app class], &count);
+    objc_property_t *properties = class_copyPropertyList(cls, &count);
     
     for (NSUInteger i = 0; i < count; i++) {
         objc_property_t property = properties[i];
@@ -82,7 +104,6 @@ static NSString *const kRERetrieverGitHubURL = @"https://github.com/cyanzhong/Re
                 forKey:key];
     }
     free(properties);
-    
     return [dict copy];
 }
 

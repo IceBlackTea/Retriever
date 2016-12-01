@@ -192,8 +192,10 @@ typedef NS_ENUM(NSInteger, REListType) {
 - (void)onIconTapped:(UITableViewCell *)cell {
     NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
     id app = self.filtered[ indexPath.row ];
-    NSDictionary *dict = [REHelper dictForAppProxy:app];
+    NSDictionary *dict = [REHelper dictForObject:app];
     REInfoTreeController *pVC = [[REInfoTreeController alloc] initWithInfo:dict];
+    pVC.title = kREApplicationProxyClass;
+    self.searchController.active = NO;
     [self.navigationController pushViewController:pVC animated:YES];
 }
 
