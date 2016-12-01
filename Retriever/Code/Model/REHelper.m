@@ -7,6 +7,7 @@
 //
 
 #import "REHelper.h"
+#import <objc/runtime.h>
 
 static NSString *const kRERetrieverGitHubURL = @"https://github.com/cyanzhong/Retriever";
 
@@ -67,6 +68,22 @@ static NSString *const kRERetrieverGitHubURL = @"https://github.com/cyanzhong/Re
     [[[[UIApplication sharedApplication] keyWindow] rootViewController] presentViewController:controller
                                                                                      animated:YES
                                                                                    completion:nil];
+}
+
++ (NSDictionary *)dictForAppProxy:(id)app {
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    unsigned int count;
+    objc_property_t *properties = class_copyPropertyList([app class], &count);
+    
+    for (NSUInteger i = 0; i < count; i++) {
+        objc_property_t property = properties[i];
+        NSString *key = [NSString stringWithUTF8String:property_getName(property)];
+        [dict setValue:[app valueForKey:key]
+                forKey:key];
+    }
+    free(properties);
+    
+    return [dict copy];
 }
 
 @end

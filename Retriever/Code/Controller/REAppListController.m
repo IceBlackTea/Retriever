@@ -10,6 +10,7 @@
 #import "RETableView.h"
 #import "REAppListCell.h"
 #import "REInfoCodeController.h"
+#import "REInfoTreeController.h"
 
 typedef NS_ENUM(NSInteger, REListType) {
     REListTypeApp       = 0,
@@ -144,6 +145,7 @@ typedef NS_ENUM(NSInteger, REListType) {
         cell = [[REAppListCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     }
     [cell render:self.filtered[indexPath.row]];
+    [cell addIconGestureTarget:self selector:@selector(onIconTapped:)];
     return cell;
 }
 
@@ -183,6 +185,16 @@ typedef NS_ENUM(NSInteger, REListType) {
                                                                       title:title
                                                                     handler:actionHandler];
     return @[action];
+}
+
+#pragma mark - Icon Tapped
+
+- (void)onIconTapped:(UITableViewCell *)cell {
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+    id app = self.filtered[ indexPath.row ];
+    NSDictionary *dict = [REHelper dictForAppProxy:app];
+    REInfoTreeController *pVC = [[REInfoTreeController alloc] initWithInfo:dict];
+    [self.navigationController pushViewController:pVC animated:YES];
 }
 
 #pragma mark - Search

@@ -10,4 +10,6 @@
 
 @interface REAppListCell : RETableViewCell
 
+- (void)addIconGestureTarget:(id)target selector:(SEL)sel;
+
 @end
