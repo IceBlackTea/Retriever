@@ -51,7 +51,10 @@
     UIColor *codeSignColor = [UIColor blackColor];
     
     NSString *codeSign = [data invoke:@"signerIdentity"];
-    if ([codeSign isEqualToString:@"Apple iPhone OS Application Signing"]) {
+    if (!codeSign) {
+        codeSignIdcator = @"S";
+    }
+    else if ([codeSign isEqualToString:@"Apple iPhone OS Application Signing"]) {
         codeSignIdcator = @"";
     }
     else if ([codeSign hasPrefix:@"iPhone Developer:"]) {
