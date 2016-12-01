@@ -146,6 +146,7 @@ typedef NS_ENUM(NSInteger, REListType) {
     }
     [cell render:self.filtered[indexPath.row]];
     [cell addIconGestureTarget:self selector:@selector(onIconTapped:)];
+    [cell addCodeSignGestureTarget:self selector:@selector(onSignTapped:)];
     return cell;
 }
 
@@ -187,7 +188,7 @@ typedef NS_ENUM(NSInteger, REListType) {
     return @[action];
 }
 
-#pragma mark - Icon Tapped
+#pragma mark - Tapped
 
 - (void)onIconTapped:(UITableViewCell *)cell {
     NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
@@ -197,6 +198,20 @@ typedef NS_ENUM(NSInteger, REListType) {
     pVC.title = kREApplicationProxyClass;
     self.searchController.active = NO;
     [self.navigationController pushViewController:pVC animated:YES];
+}
+
+- (void)onSignTapped:(UITableViewCell *)cell {
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+    id app = self.filtered[ indexPath.row ];
+    
+    NSString *codeSign = [app invoke:@"signerIdentity"];
+    if (codeSign) {
+        NSDictionary *dict = @{ @"signerIdentity" : codeSign };
+        REInfoTreeController *pVC = [[REInfoTreeController alloc] initWithInfo:dict];
+        pVC.title = @"CodeSign";
+        self.searchController.active = NO;
+        [self.navigationController pushViewController:pVC animated:YES];
+    }
 }
 
 #pragma mark - Search

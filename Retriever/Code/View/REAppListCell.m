@@ -9,10 +9,14 @@
 #import "REAppListCell.h"
 
 @interface REAppListCell () {
-    id _target;
-    SEL _sel;
-    BOOL _bIsTapGestureAdded;
+    id _iconTarget;
+    SEL _iconSel;
+    BOOL _bIsIconTapGestureAdded;
+    id _signTarget;
+    SEL _signSel;
+    BOOL _bIsSignTapGestureAdded;
 }
+@property (weak, nonatomic) UILabel *codeSignLabel;
 
 @end
 
@@ -26,10 +30,59 @@
     return self;
 }
 
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    CGFloat fW = CGRectGetHeight(self.contentView.bounds);
+    self.codeSignLabel.frame = (CGRect){
+        .origin.x = CGRectGetMaxX(self.contentView.bounds) - fW,
+        .origin.y = 0,
+        .size.width = fW,
+        .size.height = fW
+    };
+}
+
 - (void)render:(id)data {
     id app = [data invoke:@"containingBundle"] ?: data;
     self.imageView.image = [REHelper iconImageForApplication:app];
     self.textLabel.text = [REHelper displayNameForApplication:app];
+    
+    NSString *codeSignIdcator = nil;
+    UIColor *codeSignColor = [UIColor blackColor];
+    
+    NSString *codeSign = [data invoke:@"signerIdentity"];
+    if ([codeSign isEqualToString:@"Apple iPhone OS Application Signing"]) {
+        codeSignIdcator = @"";
+    }
+    else if ([codeSign hasPrefix:@"iPhone Developer:"]) {
+        codeSignIdcator = @"⌘";
+        codeSignColor = [UIColor yellowColor];
+    }
+    else if ([codeSign hasPrefix:@"iPhone Distribution:"]) {
+        NSString *locaseStr = [codeSign lowercaseString];
+        if ([locaseStr containsString:@"co."] ||
+            [locaseStr containsString:@"ltd."] ||
+            [locaseStr containsString:@"inc."] ||
+            [locaseStr containsString:@"llc."])
+        {
+            codeSignIdcator = @"E";
+            codeSignColor = [UIColor redColor];
+        }
+        else {
+            codeSignIdcator = @"D";
+            codeSignColor = [UIColor yellowColor];
+        }
+    }
+    else if ([codeSign isEqualToString:@"Simulator"]) {
+        codeSignIdcator = @"📱";
+    }
+    else {
+        codeSignIdcator = @"?";
+        codeSignColor = [UIColor orangeColor];
+    }
+    
+    self.codeSignLabel.text = codeSignIdcator;
+    self.codeSignLabel.textColor = codeSignColor;
 }
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
@@ -47,22 +100,53 @@
     return [super hitTest:point withEvent:event];
 }
 
+#pragma mark - Public Method
+
 - (void)addIconGestureTarget:(id)target selector:(SEL)sel {
-    if (target && sel && !_bIsTapGestureAdded) {
-        _target = target;
-        _sel = sel;
+    if (target && sel && !_bIsIconTapGestureAdded) {
+        _iconTarget = target;
+        _iconSel = sel;
         self.imageView.userInteractionEnabled = YES;
         UITapGestureRecognizer *tagGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onIconTapped:)];
         [self.imageView addGestureRecognizer:tagGesture];
         
-        _bIsTapGestureAdded = YES;
+        _bIsIconTapGestureAdded = YES;
+    }
+}
+
+- (void)addCodeSignGestureTarget:(id)target selector:(SEL)sel {
+    if (target && sel && !_bIsSignTapGestureAdded) {
+        _signTarget = target;
+        _signSel = sel;
+        self.codeSignLabel.userInteractionEnabled = YES;
+        UITapGestureRecognizer *tagGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onSignTapped:)];
+        [self.codeSignLabel addGestureRecognizer:tagGesture];
+        
+        _bIsSignTapGestureAdded = YES;
     }
 }
 
 - (void)onIconTapped:(UITapGestureRecognizer *)tap {
-    if (_target && _sel) {
-        [_target invoke:NSStringFromSelector(_sel) args:self, nil];
+    if (_iconTarget && _iconSel) {
+        [_iconTarget invoke:NSStringFromSelector(_iconSel) args:self, nil];
     }
+}
+
+- (void)onSignTapped:(UITapGestureRecognizer *)tap {
+    if (_signTarget && _signSel) {
+        [_signTarget invoke:NSStringFromSelector(_signSel) args:self, nil];
+    }
+}
+
+#pragma mark - Getter
+
+- (UILabel *)codeSignLabel {
+    if (!_codeSignLabel) {
+        UILabel *label = [[UILabel alloc] init];
+        [self.contentView addSubview:label];
+        _codeSignLabel = label;
+    }
+    return _codeSignLabel;
 }
 
 @end
