@@ -50,39 +50,51 @@
     NSString *codeSignIdcator = nil;
     UIColor *codeSignColor = [UIColor blackColor];
     
-    NSString *codeSign = [data invoke:@"signerIdentity"];
-    if (!codeSign) {
-        codeSignIdcator = @"S";
-    }
-    else if ([codeSign isEqualToString:@"Apple iPhone OS Application Signing"]) {
-        codeSignIdcator = @"";
-    }
-    else if ([codeSign hasPrefix:@"iPhone Developer:"]) {
-        codeSignIdcator = @"⌘";
-        codeSignColor = [UIColor yellowColor];
-    }
-    else if ([codeSign hasPrefix:@"iPhone Distribution:"]) {
-        NSString *locaseStr = [codeSign lowercaseString];
-        if ([locaseStr containsString:@"co."] ||
-            [locaseStr containsString:@"ltd."] ||
-            [locaseStr containsString:@"inc."] ||
-            [locaseStr containsString:@"llc."])
-        {
-            codeSignIdcator = @"E";
-            codeSignColor = [UIColor redColor];
-        }
-        else {
-            codeSignIdcator = @"D";
-            codeSignColor = [UIColor yellowColor];
-        }
-    }
-    else if ([codeSign isEqualToString:@"Simulator"]) {
-        codeSignIdcator = @"📱";
+    if ([[data invoke:@"isBetaApp"] boolValue]) {
+        codeSignIdcator = @"B";
     }
     else {
-        codeSignIdcator = @"?";
-        codeSignColor = [UIColor orangeColor];
+        NSString *codeSign = [data invoke:@"signerIdentity"];
+        if (!codeSign &&
+            [[data invoke:@"applicationType"] isEqualToString:@"System"])
+        {
+            codeSignIdcator = @"S";
+        }
+        else if ([codeSign isEqualToString:@"Apple iPhone OS Application Signing"]) {
+            codeSignIdcator = @"";
+        }
+        else if ([codeSignIdcator isEqualToString:@"TestFlight Beta Distribution"]) {
+            codeSignIdcator = @"B";
+        }
+        else if ([codeSign hasPrefix:@"iPhone Developer:"]) {
+            codeSignIdcator = @"⌘";
+            codeSignColor = [UIColor yellowColor];
+        }
+        else if ([codeSign hasPrefix:@"iPhone Distribution:"]) {
+            NSString *locaseStr = [codeSign lowercaseString];
+            if ([locaseStr containsString:@"co."] ||
+                [locaseStr containsString:@"ltd."] ||
+                [locaseStr containsString:@"inc."] ||
+                [locaseStr containsString:@"llc."])
+            {
+                codeSignIdcator = @"E";
+                codeSignColor = [UIColor redColor];
+            }
+            else {
+                codeSignIdcator = @"D";
+                codeSignColor = [UIColor yellowColor];
+            }
+        }
+        else if ([codeSign isEqualToString:@"Simulator"]) {
+            codeSignIdcator = @"📱";
+        }
+        else {
+            codeSignIdcator = @"?";
+            codeSignColor = [UIColor orangeColor];
+        }
     }
+    
+    
     
     self.codeSignLabel.text = codeSignIdcator;
     self.codeSignLabel.textColor = codeSignColor;

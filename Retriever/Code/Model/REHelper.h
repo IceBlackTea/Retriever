@@ -26,8 +26,6 @@
 
 + (void)openApplication:(id)app;
 
-+ (void)openGitHub;
-
 + (void)shareRetriever;
 
 + (NSDictionary *)dictForObject:(id)obj;

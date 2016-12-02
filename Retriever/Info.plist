@@ -30,16 +30,6 @@
 	<array>
 		<dict>
 			<key>UIApplicationShortcutItemIconType</key>
-			<string>UIApplicationShortcutIconTypeHome</string>
-			<key>UIApplicationShortcutItemTitle</key>
-			<string>GitHub</string>
-			<key>UIApplicationShortcutItemType</key>
-			<string>GitHub</string>
-			<key>UIApplicationShortcutItemUserInfo</key>
-			<dict/>
-		</dict>
-		<dict>
-			<key>UIApplicationShortcutItemIconType</key>
 			<string>UIApplicationShortcutIconTypeShare</string>
 			<key>UIApplicationShortcutItemTitle</key>
 			<string>Share</string>

@@ -13,8 +13,6 @@
 - (void)performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem {
     if ([shortcutItem.type isEqualToString:@"Share"]) {
         [REHelper shareRetriever];
-    } else if ([shortcutItem.type isEqualToString:@"GitHub"]) {
-        [REHelper openGitHub];
     }
 }
 

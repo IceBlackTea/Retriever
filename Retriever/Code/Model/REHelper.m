@@ -55,12 +55,6 @@ static NSString *const kRERetrieverGitHubURL = @"https://github.com/cyanzhong/Re
                                args:[self bundleIdentifierForApplication:app], nil];
 }
 
-+ (void)openGitHub {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:kRERetrieverGitHubURL]
-                                       options:@{}
-                             completionHandler:nil];
-}
-
 + (void)shareRetriever {
     NSArray *items = @[[NSURL URLWithString:kRERetrieverGitHubURL], [UIImage imageNamed:@"AppIcon60x60@3x.png"], @"Retriever: Retrieve InfoPlist without Jailbreak on iOS Devices"];
     UIActivityViewController *controller = [[UIActivityViewController alloc] initWithActivityItems:items
