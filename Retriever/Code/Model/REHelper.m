@@ -17,8 +17,24 @@ static NSString *const kRERetrieverGitHubURL = @"https://github.com/cyanzhong/Re
     return [@"LSApplicationWorkspace" invokeClassMethod:@"defaultWorkspace"];
 }
 
+static NSDictionary* appDict = nil;
 + (NSArray *)installedApplications {
-    return [[self defaultWorkspace] invoke:@"allInstalledApplications"];
+    if (@available(iOS 11.0, *)) {
+        NSArray *plugins = [self installedPlugins];
+        NSMutableDictionary *dict = [NSMutableDictionary new];
+        for (id obj in plugins) {
+            id p = [obj invoke:@"containingBundle"];
+            id k = [p invoke:@"applicationIdentifier"];
+            if (p && k) {
+                dict[k] = p;
+            }
+        }
+        appDict = dict;
+        return dict.allValues;
+    }
+    else {
+        return [[self defaultWorkspace] invoke:@"allInstalledApplications"];
+    }
 }
 
 + (NSArray *)installedPlugins {
@@ -33,9 +49,34 @@ static NSString *const kRERetrieverGitHubURL = @"https://github.com/cyanzhong/Re
     return [app valueForKey:@"bundleIdentifier"];
 }
 
++ (UIImage *)iconImageNameForBundleID:(NSString *)bundeID {
+    return [[self class] iconImageNameForBundleID:bundeID format:0];
+}
+
++ (UIImage *)iconImageNameForBundleID:(NSString *)bundleID format:(NSInteger)format {
+    if (@available(iOS 11.0, *)) {
+        id app = appDict[ bundleID ];
+        if (app) {
+            return [UIImage invoke:@"_iconForResourceProxy:format:" arguments:@[app, @(format)]];
+        }
+        else {
+            return [UIImage invoke:@"_applicationIconImageForBundleIdentifier:format:scale:"
+                         arguments:@[bundleID, @(format), @([UIScreen mainScreen].scale)]];
+        }
+    }
+    else {
+        return [UIImage invoke:@"_applicationIconImageForBundleIdentifier:format:scale:"
+                     arguments:@[bundleID, @(format), @([UIScreen mainScreen].scale)]];
+    }
+}
+
++ (UIImage *)iconImageForApplication:(id)app format:(NSInteger)format {
+    return [[self class] iconImageNameForBundleID:[self bundleIdentifierForApplication:app] format:format];
+}
+
+
 + (UIImage *)iconImageForApplication:(id)app {
-    return [UIImage invoke:@"_applicationIconImageForBundleIdentifier:format:scale:"
-                 arguments:@[[self bundleIdentifierForApplication:app], @(10), @([UIScreen mainScreen].scale)]];
+    return [[self class] iconImageForApplication:app format:0];
 }
 
 + (id)applicationForIdentifier:(NSString *)identifier {
